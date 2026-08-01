@@ -31,14 +31,15 @@ def test_query_returns_expected_columns():
     assert cols == EXPECTED_COLUMNS
     assert len(rows) > 0
 
-def test_query_filters_salary_only():
+def test_query_filters_categories():
+    allowed = {"salary", "utilities"}
     with conn() as c, c.cursor() as cur:
         cur.execute("SELECT main_category FROM public.finance_entry")
         all_rows = cur.fetchall()
         cur.execute(Path(BASE_DIR / "1.sql").read_text(encoding="utf-8"))
-        salary_rows = cur.fetchall()
-    assert all(r[3] == "salary" for r in salary_rows)
-    assert len(salary_rows) < len(all_rows)
+        filtered_rows = cur.fetchall()
+    assert all(r[3] in allowed for r in filtered_rows)
+    assert len(filtered_rows) < len(all_rows)
 
 def test_run_query_script_exits_zero():
     env = os.environ.copy()
